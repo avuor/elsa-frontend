@@ -32,6 +32,7 @@ import KouluttajaArviointilomakeLoppukeskustelu from '@/views/koejakso/kouluttaj
 import KouluttajaArviointilomakeValiarviointi from '@/views/koejakso/kouluttaja/arviointilomake-valiarviointi/kouluttaja-arviointilomake-valiarviointi.vue'
 import VastuuhenkilonArvioVastuuhenkilo from '@/views/koejakso/vastuuhenkilo/vastuuhenkilon-arvio-vastuuhenkilo.vue'
 import Koulutukset from '@/views/koulutukset.vue'
+import UusiKoulutusjakso from '@/views/koulutussuunnitelma/koulutusjakso/uusi-koulutusjakso.vue'
 import Koulutussuunnitelma from '@/views/koulutussuunnitelma/koulutussuunnitelma.vue'
 import MuokkaaKoulutussuunnitelma from '@/views/koulutussuunnitelma/muokkaa-koulutussuunnitelma.vue'
 import Kayttooikeus from '@/views/login/kayttooikeus.vue'
@@ -109,6 +110,11 @@ const routes: Array<RouteConfig> = [
           routeComponent: MuokkaaKoulutussuunnitelma,
           allowedRoles: [ELSA_ROLE.ErikoistuvaLaakari]
         }
+      },
+      {
+        path: '/koulutussuunnitelma/koulutusjaksot/uusi',
+        name: 'uusi-koulutusjakso',
+        component: UusiKoulutusjakso
       },
       {
         path: '/suoritemerkinnat',

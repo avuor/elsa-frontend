@@ -23,14 +23,40 @@
         />
       </template>
       <template v-slot="{ uid }">
-        <elsa-form-multiselect
+        <div
           :id="uid"
-          v-model="form.tyoskentelyjakso"
-          :options="tyoskentelyjaksotFormatted"
-          label="label"
-          track-by="id"
-          @select="onTyoskentelyjaksoSelect"
-        />
+          v-for="(tyoskentelyjakso, index) in form.tyoskentelyjaksot"
+          :key="index"
+          class="mb-2"
+        >
+          <elsa-form-multiselect
+            :id="uid"
+            v-model="form.tyoskentelyjaksot[index]"
+            :options="tyoskentelyjaksotFormatted"
+            label="label"
+            track-by="id"
+            @select="onTyoskentelyjaksoSelect"
+          />
+          <elsa-button
+            v-if="index !== 0"
+            @click="deleteTyoskentelyjakso(index)"
+            variant="link"
+            size="sm"
+            class="text-decoration-none shadow-none p-0"
+          >
+            <font-awesome-icon :icon="['far', 'trash-alt']" fixed-width size="sm" />
+            {{ $t('poista-tyoskentelyjakso') }}
+          </elsa-button>
+        </div>
+        <elsa-button
+          @click="addTyoskentelyjakso"
+          variant="link"
+          size="sm"
+          class="text-decoration-none shadow-none p-0"
+        >
+          <font-awesome-icon icon="plus" fixed-width size="sm" />
+          {{ $t('useampi-jakso') | lowercase }}
+        </elsa-button>
       </template>
     </elsa-form-group>
     <elsa-form-group :label="$t('osaamistavoitteet-omalta-erikoisalalta')">
@@ -90,7 +116,7 @@
         nimi: {
           required
         },
-        tyoskentelyjakso: {}
+        tyoskentelyjaksot: []
       }
     }
   })
@@ -107,14 +133,16 @@
       default: () => ({
         id: null,
         nimi: null,
-        muutOsaamistavoitteet: null
+        muutOsaamistavoitteet: null,
+        tyoskentelyjaksot: []
       })
     })
     value!: any
     form: any = {
       id: null,
       nimi: null,
-      muutOsaamistavoitteet: null
+      muutOsaamistavoitteet: null,
+      tyoskentelyjaksot: []
     }
     params = {
       saving: false
@@ -145,6 +173,19 @@
 
     onOsaamistavoiteTag(value: any) {
       console.log(value)
+    }
+
+    addTyoskentelyjakso() {
+      this.form.tyoskentelyjaksot.push({})
+    }
+
+    deleteTyoskentelyjakso(index: number) {
+      const tyoskentelyjaksot = [...this.form.tyoskentelyjaksot]
+      tyoskentelyjaksot.splice(index, 1)
+      this.form = {
+        ...this.form,
+        tyoskentelyjaksot
+      }
     }
 
     onSubmit() {

@@ -110,7 +110,7 @@
   @import '~@/styles/variables';
 
   ::v-deep {
-    min-height: 35px;
+    min-height: 35px !important;
 
     &.multiselect--disabled {
       background: transparent;

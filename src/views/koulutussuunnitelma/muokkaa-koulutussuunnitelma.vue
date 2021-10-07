@@ -96,7 +96,7 @@
       }
     }
 
-    async onSubmit(data: any, params: any) {
+    async onSubmit(data: Koulutussuunnitelma, params: { saving: boolean }) {
       params.saving = true
       try {
         await putKoulutussuunnitelma(data)

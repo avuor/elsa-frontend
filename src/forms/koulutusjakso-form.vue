@@ -63,7 +63,7 @@
       <template v-slot="{ uid }">
         <elsa-form-multiselect
           :id="uid"
-          v-model="form.osaamistavoitteetOmaltaErikoisalalta"
+          v-model="form.osaamistavoitteet"
           :options="osaamistavoitteetFormatted"
           label="label"
           track-by="id"
@@ -102,7 +102,7 @@
   import ElsaFormMultiselect from '@/components/multiselect/multiselect.vue'
   import TyoskentelyjaksoForm from '@/forms/tyoskentelyjakso-form.vue'
   import TyoskentelyjaksoMixin from '@/mixins/tyoskentelyjakso'
-  import { Erikoisala, Kunta } from '@/types'
+  import { Erikoisala, Koulutusjakso, Kunta } from '@/types'
 
   @Component({
     components: {
@@ -115,8 +115,7 @@
       form: {
         nimi: {
           required
-        },
-        tyoskentelyjaksot: []
+        }
       }
     }
   })
@@ -134,16 +133,32 @@
         id: null,
         nimi: null,
         muutOsaamistavoitteet: null,
-        tyoskentelyjaksot: []
+        luotu: null,
+        tallennettu: null,
+        lukittu: false,
+        tyoskentelyjaksot: [
+          {
+            alkamispaiva: null,
+            paattymispaiva: null,
+            minPaattymispaiva: null,
+            osaaikaprosentti: 100,
+            tyoskentelypaikka: {
+              nimi: null,
+              kunta: { abbreviation: null },
+              tyyppi: null,
+              muuTyyppi: null
+            },
+            kaytannonKoulutus: null,
+            omaaErikoisalaaTukeva: null,
+            hyvaksyttyAiempaanErikoisalaan: null
+          }
+        ],
+        osaamistavoitteet: [],
+        koulutussuunnitelma: null
       })
     })
-    value!: any
-    form: any = {
-      id: null,
-      nimi: null,
-      muutOsaamistavoitteet: null,
-      tyoskentelyjaksot: []
-    }
+    value!: Koulutusjakso
+    form!: Koulutusjakso
     params = {
       saving: false
     }
@@ -171,12 +186,26 @@
       return $dirty ? ($error ? false : null) : null
     }
 
-    onOsaamistavoiteTag(value: any) {
+    onOsaamistavoiteTag(value: { id: number; label: string }) {
       console.log(value)
     }
 
     addTyoskentelyjakso() {
-      this.form.tyoskentelyjaksot.push({})
+      this.form.tyoskentelyjaksot.push({
+        alkamispaiva: null,
+        paattymispaiva: null,
+        minPaattymispaiva: null,
+        osaaikaprosentti: 100,
+        tyoskentelypaikka: {
+          nimi: null,
+          kunta: { abbreviation: null },
+          tyyppi: null,
+          muuTyyppi: null
+        },
+        kaytannonKoulutus: null,
+        omaaErikoisalaaTukeva: null,
+        hyvaksyttyAiempaanErikoisalaan: null
+      })
     }
 
     deleteTyoskentelyjakso(index: number) {

@@ -9,7 +9,12 @@
             <p>{{ $t('koulutusjakso-lisays-ingressi-1') }}</p>
             <p>{{ $t('koulutusjakso-lisays-ingressi-2') }}</p>
             <hr />
-            <koulutusjakso-form @submit="onSubmit" @cancel="onCancel" />
+            <koulutusjakso-form
+              :tyoskentelyjaksot="tyoskentelyjaksot"
+              :kunnat="kunnat"
+              @submit="onSubmit"
+              @cancel="onCancel"
+            />
           </div>
           <div v-else class="text-center">
             <b-spinner variant="primary" :label="$t('ladataan')" />
@@ -21,10 +26,13 @@
 </template>
 
 <script lang="ts">
+  import axios from 'axios'
   import { Component, Mixins } from 'vue-property-decorator'
 
   import KoulutusjaksoForm from '@/forms/koulutusjakso-form.vue'
   import ConfirmRouteExit from '@/mixins/confirm-route-exit'
+  import { Koulutusjakso, KoulutusjaksoLomake } from '@/types'
+  import { toastFail } from '@/utils/toast'
 
   @Component({
     components: {
@@ -46,20 +54,50 @@
         active: true
       }
     ]
+    koulutusjaksoLomake: null | KoulutusjaksoLomake = null
     loading = true
 
     async mounted() {
+      await this.fetchLomake()
       this.loading = false
     }
 
-    onSubmit() {
-      console.log('todo')
+    async fetchLomake() {
+      try {
+        this.koulutusjaksoLomake = (
+          await axios.get(`erikoistuva-laakari/koulutusjakso-lomake`)
+        ).data
+      } catch (err) {
+        toastFail(this, this.$t('koulutusjakson-lomakkeen-hakeminen-epaonnistui'))
+      }
+    }
+
+    onSubmit(data: Koulutusjakso, params: { saving: boolean }) {
+      params.saving = true
+      console.log(data)
+      params.saving = false
     }
 
     onCancel() {
       this.$router.push({
         name: 'koulutussuunnitelma'
       })
+    }
+
+    get tyoskentelyjaksot() {
+      if (this.koulutusjaksoLomake) {
+        return this.koulutusjaksoLomake.tyoskentelyjaksot
+      } else {
+        return []
+      }
+    }
+
+    get kunnat() {
+      if (this.koulutusjaksoLomake) {
+        return this.koulutusjaksoLomake.kunnat
+      } else {
+        return []
+      }
     }
   }
 </script>

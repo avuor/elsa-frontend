@@ -31,6 +31,7 @@
         >
           <elsa-form-multiselect
             :id="uid"
+            :value="form.tyoskentelyjaksot"
             v-model="form.tyoskentelyjaksot[index]"
             :options="tyoskentelyjaksotFormatted"
             label="label"
@@ -102,7 +103,8 @@
   import ElsaFormMultiselect from '@/components/multiselect/multiselect.vue'
   import TyoskentelyjaksoForm from '@/forms/tyoskentelyjakso-form.vue'
   import TyoskentelyjaksoMixin from '@/mixins/tyoskentelyjakso'
-  import { Erikoisala, Koulutusjakso, Kunta } from '@/types'
+  import { Erikoisala, Koulutusjakso, Kunta, Tyoskentelyjakso } from '@/types'
+  import { tyoskentelyjaksoLabel } from '@/utils/tyoskentelyjakso'
 
   @Component({
     components: {
@@ -162,6 +164,7 @@
     params = {
       saving: false
     }
+    // TODO: Listaa oikeat osaamistavoitteet
     osaamistavoitteetFormatted = [
       {
         id: 1,
@@ -178,12 +181,28 @@
     ]
 
     mounted() {
-      this.form = this.value
+      if (this.value.id) {
+        this.form = {
+          ...this.value,
+          tyoskentelyjaksot: this.value.tyoskentelyjaksot
+            .filter((tj) => !tj.hyvaksyttyAiempaanErikoisalaan)
+            .map((tj) => ({
+              ...tj,
+              label: tyoskentelyjaksoLabel(this, tj)
+            }))
+        }
+      } else {
+        this.form = this.value
+      }
     }
 
     validateState(name: string) {
       const { $dirty, $error } = this.$v.form[name] as any
       return $dirty ? ($error ? false : null) : null
+    }
+
+    onInput(value: Tyoskentelyjakso, index: number) {
+      this.form.tyoskentelyjaksot[index] = value
     }
 
     onOsaamistavoiteTag(value: { id: number; label: string }) {

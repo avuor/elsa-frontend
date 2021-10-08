@@ -222,7 +222,16 @@
       if (this.$v.form.$anyError) {
         return
       }
-      this.$emit('submit', this.form, this.params)
+      this.$emit(
+        'submit',
+        {
+          ...this.form,
+          tyoskentelyjaksot: this.form.tyoskentelyjaksot.filter(
+            (tyoskentelyjakso) => tyoskentelyjakso.id
+          )
+        },
+        this.params
+      )
     }
 
     onCancel() {

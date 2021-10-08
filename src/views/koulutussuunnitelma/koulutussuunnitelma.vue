@@ -14,7 +14,7 @@
               {{ $t('lisaa-koulutusjakso') }}
             </elsa-button>
             <b-table-simple
-              v-if="koulutusjaksot && koulutusjaksot.lengh > 0"
+              v-if="koulutusjaksot && koulutusjaksot.length > 0"
               responsive
               stacked="md"
             >
@@ -26,26 +26,44 @@
                 </b-tr>
               </b-thead>
               <b-tbody>
-                <b-tr>
+                <b-tr v-for="koulutusjakso in koulutusjaksot" :key="koulutusjakso.id">
                   <b-td>
                     <elsa-button
                       :to="{
                         name: 'koulutusjakso',
-                        params: { koulutusjaksoId: 1 }
+                        params: { koulutusjaksoId: koulutusjakso.id }
                       }"
                       variant="link"
                       class="shadow-none p-0 border-0"
                     >
-                      Riston mukava jakso
+                      {{ koulutusjakso.nimi }}
                     </elsa-button>
                   </b-td>
-                  <b-td>{{ `Kuopion terveyskeskus 1.1.2021-1.8.2021` }}</b-td>
                   <b-td>
-                    <b-badge pill variant="light" class="font-weight-400 mr-2">
-                      Neuvonta ja ohjaus
-                    </b-badge>
-                    <b-badge pill variant="light" class="font-weight-400">
-                      Työterveystoiminnan suunnittelu
+                    <div
+                      v-for="tyoskentelyjakso in koulutusjakso.tyoskentelyjaksot"
+                      :key="tyoskentelyjakso.id"
+                    >
+                      {{ tyoskentelyjakso.tyoskentelypaikka.nimi }} ({{
+                        tyoskentelyjakso.alkamispaiva ? $date(tyoskentelyjakso.alkamispaiva) : ''
+                      }}
+                      –
+                      {{
+                        tyoskentelyjakso.paattymispaiva
+                          ? $date(tyoskentelyjakso.paattymispaiva)
+                          : $t('kesken') | lowercase
+                      }})
+                    </div>
+                  </b-td>
+                  <b-td>
+                    <b-badge
+                      v-for="osaamistavoite in koulutusjakso.osaamistavoitteet"
+                      :key="osaamistavoite.id"
+                      pill
+                      variant="light"
+                      class="font-weight-400 mr-2"
+                    >
+                      {{ osaamistavoite.nimi }}
                     </b-badge>
                   </b-td>
                 </b-tr>
@@ -232,9 +250,10 @@
   import axios from 'axios'
   import { Component, Vue } from 'vue-property-decorator'
 
+  import { getKoulutusjaksot } from '@/api/erikoistuva'
   import ElsaAccordian from '@/components/accordian/accordian.vue'
   import ElsaButton from '@/components/button/button.vue'
-  import { Asiakirja } from '@/types'
+  import { Asiakirja, Koulutusjakso } from '@/types'
   import { fetchAndOpenBlob } from '@/utils/blobs'
   import { toastFail } from '@/utils/toast'
 
@@ -257,21 +276,27 @@
     ]
 
     koulutussuunnitelma: Koulutussuunnitelma | null = null
-    koulutusjaksot: any[] | null = null
+    koulutusjaksot: Koulutusjakso[] | null = null
     loading = true
 
     async mounted() {
-      await this.fetchKoulutussuunnitelma()
+      await Promise.all([this.fetchKoulutusjaksot(), this.fetchKoulutussuunnitelma()])
+      this.loading = false
     }
 
     async fetchKoulutussuunnitelma() {
       try {
-        this.loading = true
         this.koulutussuunnitelma = (await axios.get(`erikoistuva-laakari/koulutussuunnitelma`)).data
       } catch (err) {
         toastFail(this, this.$t('koulutussuunnitelman-hakeminen-epaonnistui'))
-      } finally {
-        this.loading = false
+      }
+    }
+
+    async fetchKoulutusjaksot() {
+      try {
+        this.koulutusjaksot = (await getKoulutusjaksot()).data
+      } catch (err) {
+        toastFail(this, this.$t('koulutusjaksojen-hakeminen-epaonnistui'))
       }
     }
 

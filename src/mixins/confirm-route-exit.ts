@@ -8,21 +8,6 @@ Component.registerHooks(['beforeRouteLeave'])
 export default class ConfirmRouteExit extends Vue {
   skipRouteExitConfirm = false
 
-  created() {
-    window.addEventListener('beforeunload', this.beforeWindowUnload)
-  }
-
-  beforeDestroy() {
-    window.removeEventListener('beforeunload', this.beforeWindowUnload)
-  }
-
-  beforeWindowUnload(e: BeforeUnloadEvent) {
-    if (!this.skipRouteExitConfirm) {
-      e.preventDefault()
-      e.returnValue = ''
-    }
-  }
-
   async beforeRouteLeave(to: any, from: any, next: any) {
     try {
       if (this.skipRouteExitConfirm || (await confirmExit(this))) {
